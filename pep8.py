@@ -1166,8 +1166,8 @@ class Checker(object):
             result = self.run_check(check, argument_names)
             if result is not None:
                 offset, text = result
-                self.report_error(self.line_number, offset, text, check)
-                self.edits.update(fix_line(self, self.line_number, offset, text, check))
+                if self.report_error(self.line_number, offset, text, check):
+                    self.edits.update(fix_line(self, self.line_number, offset, text, check))
             
     def build_tokens_line(self):
         """
@@ -1229,9 +1229,9 @@ class Checker(object):
                             original_number = token[2][0]
                             original_offset = (token[2][1]
                                                + offset - token_offset)
-                self.report_error(original_number, original_offset,
-                                  text, check)
-                self.edits.update(fix_line(self, original_number, original_offset, text, check))
+                if self.report_error(original_number, original_offset,
+                                    text, check):
+                    self.edits.update(fix_line(self, original_number, original_offset, text, check))
         self.previous_logical = self.logical_line
 
     def check_all(self, expected=None, line_offset=0):
@@ -1307,7 +1307,7 @@ class Checker(object):
         """
         code = text[:4]
         if ignore_code(code):
-            return
+            return False
         if options.quiet == 1 and not self.file_errors:
             message(self.filename)
         if code in options.counters:
@@ -1317,7 +1317,7 @@ class Checker(object):
             options.messages[code] = text[5:]
         if options.quiet or code in self.expected:
             # Don't care about expected errors or warnings
-            return
+            return False
         self.file_errors += 1
         if options.counters[code] == 1 or options.repeat:
             message("%s:%s:%d: %s" %
@@ -1329,6 +1329,7 @@ class Checker(object):
                 message(' ' * offset + '^')
             if options.show_pep8:
                 message(check.__doc__.lstrip('\n').rstrip())
+        return True
             
 
 def input_file(filename):
