@@ -1288,9 +1288,10 @@ class Checker(object):
 
         if options.fix and self.edits:
             try:
-                with open(self.write_filename, "w") as writer:
-                    report_fix("Writing changes to %s" % self.write_filename)
-                    writer.writelines(self.edited_lines())
+                writer = open(self.write_filename, "w")
+                report_fix("Writing changes to %s" % self.write_filename)
+                writer.writelines(self.edited_lines())
+                writer.close()
             except IOError:
                 traceback.print_exc()
                 raise SystemExit
