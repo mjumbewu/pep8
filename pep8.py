@@ -720,13 +720,19 @@ def python_3000_backticks(logical_line):
 if '' == ''.encode():
     # Python 2: implicit encoding.
     def readlines(filename):
-        return open(filename).readlines()
+        if filename == '-':
+            return sys.stdin.readlines()
+        else:
+            return open(filename).readlines()
 else:
     # Python 3: decode to latin-1.
     # This function is lazy, it does not read the encoding declaration.
     # XXX: use tokenize.detect_encoding()
     def readlines(filename):
-        return open(filename, encoding='latin-1').readlines()
+        if filename == '-':
+            return sys.stdin.readlines()
+        else:
+            return open(filename, encoding='latin-1').readlines()
 
 
 def expand_indent(line):
